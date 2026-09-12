@@ -1,5 +1,7 @@
 <script setup>
-import { reactive, watch } from 'vue'
+import { reactive, ref, watch } from 'vue'
+import html2canvas from 'html2canvas'
+import { jsPDF } from 'jspdf'
 import ResumeForm from './components/ResumeForm.vue'
 import ResumePreview from './components/ResumePreview.vue'
 
@@ -77,8 +79,36 @@ function clearAll() {
   }
 }
 
-function exportPdf() {
-  window.print()
+// 一键下载 PDF：把右侧 A4 简历渲染成高清图片，再装进 A4 尺寸的 PDF 文件
+const exporting = ref(false)
+
+async function exportPdf() {
+  const el = document.querySelector('.a4')
+  if (!el || exporting.value) return
+  exporting.value = true
+  try {
+    const canvas = await html2canvas(el, {
+      scale: 2, // 2 倍分辨率，保证文字清晰
+      backgroundColor: '#ffffff',
+    })
+    const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' })
+    const imgWidth = 210 // A4 宽度
+    const imgHeight = (canvas.height * imgWidth) / canvas.width
+    const imgData = canvas.toDataURL('image/png')
+    pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight)
+    // 内容超过一页时自动补页
+    let rest = imgHeight - 297
+    while (rest > 0) {
+      pdf.addPage()
+      pdf.addImage(imgData, 'PNG', 0, -(imgHeight - rest), imgWidth, imgHeight)
+      rest -= 297
+    }
+    pdf.save(`${resume.name || '我的'}-简历.pdf`)
+  } catch (err) {
+    alert('生成 PDF 失败，请重试。错误信息：' + err.message)
+  } finally {
+    exporting.value = false
+  }
 }
 </script>
 
@@ -91,7 +121,9 @@ function exportPdf() {
       </div>
       <div class="actions">
         <button class="btn" @click="clearAll">清空</button>
-        <button class="btn primary" @click="exportPdf">导出 PDF</button>
+        <button class="btn primary" :disabled="exporting" @click="exportPdf">
+          {{ exporting ? '生成中…' : '导出 PDF' }}
+        </button>
       </div>
     </header>
 
