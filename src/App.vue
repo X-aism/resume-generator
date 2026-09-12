@@ -82,7 +82,18 @@ function clearAll() {
 // 一键下载 PDF：把右侧 A4 简历渲染成高清图片，再装进 A4 尺寸的 PDF 文件
 const exporting = ref(false)
 
+// 微信内置浏览器不允许网页下载文件，点导出时改为引导去外部浏览器
+const showWeChatTip = ref(false)
+
+function isWeChat() {
+  return /MicroMessenger/i.test(navigator.userAgent)
+}
+
 async function exportPdf() {
+  if (isWeChat()) {
+    showWeChatTip.value = true
+    return
+  }
   const el = document.querySelector('.a4')
   if (!el || exporting.value) return
   exporting.value = true
@@ -131,6 +142,16 @@ async function exportPdf() {
       <ResumeForm :resume="resume" />
       <ResumePreview :resume="resume" />
     </main>
+
+    <!-- 微信内点导出时的引导浮层 -->
+    <div v-if="showWeChatTip" class="wechat-tip no-print" @click="showWeChatTip = false">
+      <div class="wechat-arrow">···</div>
+      <div class="wechat-card">
+        <p class="wechat-title">微信内暂不支持下载文件</p>
+        <p>请点击<b>右上角「···」</b>，选择<b>「在浏览器打开」</b>，再点"导出 PDF"即可保存。</p>
+        <button class="btn primary">我知道了</button>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -197,6 +218,51 @@ async function exportPdf() {
 
 .btn.primary:hover {
   background: #333;
+}
+
+/* ===== 微信引导浮层 ===== */
+.wechat-tip {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.wechat-arrow {
+  position: absolute;
+  top: 14px;
+  right: 18px;
+  color: #fff;
+  font-size: 28px;
+  font-weight: 700;
+  animation: bounce 1.2s infinite;
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(6px); }
+}
+
+.wechat-card {
+  background: #fff;
+  padding: 28px 24px;
+  max-width: 300px;
+  text-align: center;
+}
+
+.wechat-title {
+  font-weight: 700;
+  font-size: 16px;
+  margin-bottom: 10px;
+}
+
+.wechat-card p {
+  color: #555;
+  margin-bottom: 18px;
+  line-height: 1.8;
 }
 
 /* ===== 两栏工作区 ===== */
