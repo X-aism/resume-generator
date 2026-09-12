@@ -1,0 +1,42 @@
+/* ===== 全局样式：简洁黑白风 ===== */
+:root {
+  --ink: #111111;          /* 主文字 */
+  --ink-soft: #555555;     /* 次级文字 */
+  --ink-faint: #999999;    /* 弱化文字 */
+  --paper: #ffffff;        /* 纸面 */
+  --page-bg: #ececea;      /* 应用背景 */
+  --line: #d9d9d6;         /* 分隔线 */
+  --sans: 'PingFang SC', 'Microsoft YaHei', 'Segoe UI', sans-serif;
+  --serif: 'Songti SC', SimSun, Georgia, serif;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+}
+
+body {
+  font: 14px/1.6 var(--sans);
+  color: var(--ink);
+  background: var(--page-bg);
+  -webkit-font-smoothing: antialiased;
+}
+
+button {
+  font: inherit;
+  cursor: pointer;
+}
+
+input, textarea, select {
+  font: inherit;
+  color: inherit;
+}
+
+textarea {
+  resize: vertical;
+}
