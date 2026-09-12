@@ -4,6 +4,6 @@ import { defineConfig } from 'vite'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [vue()],
-  // 部署到 GitHub Pages 的子路径：https://x-aism.github.io/resume-generator/
-  base: '/resume-generator/',
+  // 相对路径：同时兼容 GitHub Pages 子路径和 EdgeOne 根域名部署
+  base: './',
 })
